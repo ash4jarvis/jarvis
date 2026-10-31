@@ -8,9 +8,9 @@ This inventory reflects the repository inspected for the expansion roadmap. “I
 
 - **Implemented:** Vite + React 19 + TypeScript client-side application; React Router routes live in `src/App.tsx`; Tailwind and shadcn/Radix UI dependencies are available.
 - **Implemented:** Website code is in `src/`, static assets in `public/`, deployment configuration includes Vercel routing.
-- **Implemented:** A Tauri 2 / Rust desktop preview shell with a separate Vite frontend entry and a Windows x64 NSIS/MSI installer workflow.
+- **Implemented:** A Tauri 2 / Rust desktop preview shell with a separate Vite frontend entry and cross-platform Windows/macOS/Linux installer workflows.
 - **Not present:** SQLite, a remote app server, a generic extensible provider framework, automated test suite, or phone/computer-control adapters. Native Tauri commands have been added for Gemini credential storage and API requests but still require compilation and runtime checks.
-- **Deployment note:** The website remains the root Vite app. Desktop UI uses `desktop-ui/`, `vite.desktop.config.ts`, and `src-tauri/`; it has independent web and native build scripts. Windows installer builds have not yet been run; macOS and Linux installers are not configured for the current release workflow.
+- **Deployment note:** The website remains the root Vite app. Desktop UI uses `desktop-ui/`, `vite.desktop.config.ts`, and `src-tauri/`; it has independent web and native build scripts. Cross-platform installer jobs are configured but have not yet run.
 
 ## Website
 
@@ -34,7 +34,7 @@ The desktop shell source now defaults to Gemini API chat with optional local Oll
 - Secure phone pairing, iOS/Android companion apps, call answering, SMS reading/sending, and voice-controlled communication.
 - REA-based website/application reverse engineering inside the desktop app. REA is a separate tool and is not bundled or integrated.
 - System health, workflows, productivity data, documents, integrations, agents, memory, skills/plugins, security centre, updates, diagnostics, backups, and rollback.
-- Windows installer generation has a configured GitHub Actions workflow but has not yet run; no installer is published. macOS and Linux installers are not currently built.
+- Windows, macOS, and Linux installer generation is configured in GitHub Actions but has not yet run for this version.
 - Gemini cloud provider UI and native secure-key/API code are implemented in source but await native build and end-to-end verification. Additional cloud providers are not implemented. Gemini API credentials and billing are separate from a consumer Gemini subscription; confirm the Google AI Studio project/key and billing terms before enabling cloud calls.
 
 ## Non-negotiable release truth

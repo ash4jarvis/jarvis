@@ -1,6 +1,6 @@
 [package]
 name = "jarvis-desktop"
-version = "0.1.0"
+version = "0.1.1"
 description = "JARVIS desktop preview"
 authors = ["JARVIS contributors"]
 edition = "2021"
