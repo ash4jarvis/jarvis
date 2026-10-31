@@ -7,6 +7,17 @@ const GEMINI_SERVICE: &str = "app.jarvis.desktop";
 const GEMINI_ACCOUNT: &str = "gemini-api-key";
 const GEMINI_API: &str = "https://generativelanguage.googleapis.com/v1beta";
 
+#[tauri::command]
+fn open_youtube_search(query: String) -> Result<(), String> {
+    let query = query.trim();
+    if query.is_empty() || query.chars().count() > 200 || query.chars().any(char::is_control) {
+        return Err("Enter a YouTube search up to 200 characters.".to_string());
+    }
+    let mut url = reqwest::Url::parse("https://www.youtube.com/results").map_err(|_| "Could not create the YouTube search link.".to_string())?;
+    url.query_pairs_mut().append_pair("search_query", query);
+    open::that(url.as_str()).map_err(|_| "Could not open YouTube in your default browser.".to_string())
+}
+
 fn gemini_credential() -> Result<Entry, String> {
     Entry::new(GEMINI_SERVICE, GEMINI_ACCOUNT).map_err(|_| "The operating system credential store is unavailable.".to_string())
 }
@@ -115,7 +126,7 @@ async fn generate_gemini_response(model: String, messages: Vec<ChatMessage>, sys
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![save_gemini_api_key, has_gemini_api_key, delete_gemini_api_key, list_gemini_models, generate_gemini_response])
+        .invoke_handler(tauri::generate_handler![open_youtube_search, save_gemini_api_key, has_gemini_api_key, delete_gemini_api_key, list_gemini_models, generate_gemini_response])
         .run(tauri::generate_context!())
         .expect("failed to start JARVIS");
 }

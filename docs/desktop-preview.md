@@ -14,7 +14,7 @@ Choose **Gemini** in chat and enter a Gemini API key from Google AI Studio in **
 
 ## Personalization and voice
 
-The chat preferences currently let users set their name, assistant name, dark/light appearance, and voice input/output toggles. These are stored in local storage and are not synced. Speech recognition support varies by WebView; if unavailable, text chat remains usable. Voice input is push-to-talk and does not listen in the background. Speech output can be interrupted by browser/WebView controls; voice speed and voice selection are not yet configurable.
+The chat preferences currently let users set their name, assistant name, dark/light appearance, and voice input/output toggles. These are stored in local storage and are not synced. Speech recognition support varies by WebView; if unavailable, text chat remains usable. Voice input is push-to-talk and does not listen in the background. Speech output can be interrupted by browser/WebView controls; voice speed and voice selection are not yet configurable. In the desktop app, “play [show] on YouTube” opens a YouTube search in the system browser; the user chooses the video. This is a narrowly scoped browser action, not general computer control.
 
 ## Phone companion and REA
 

@@ -33,6 +33,19 @@ function readConversations(): Conversation[] {
 
 function OrbMark() { return <span className="chat-orb-mark" aria-hidden="true"><i/><i/><i/></span>; }
 
+function youtubeQueryFromCommand(text: string) {
+  const patterns = [
+    /^(?:hey\s+)?(?:jarvis[, ]+)?(?:please\s+)?play\s+(.+?)\s+(?:on|in)\s+(?:youtube|yt)(?:\s+please)?[.!?]*$/i,
+    /^(?:hey\s+)?(?:jarvis[, ]+)?(?:please\s+)?search\s+(?:for\s+)?(.+?)\s+(?:on|in)\s+(?:youtube|yt)(?:\s+please)?[.!?]*$/i,
+    /^(?:hey\s+)?(?:jarvis[, ]+)?(?:please\s+)?search\s+youtube\s+for\s+(.+?)[.!?]*$/i,
+  ];
+  for (const pattern of patterns) {
+    const match = text.trim().match(pattern);
+    if (match?.[1]?.trim()) return match[1].trim().replace(/^['"“”]|['"“”]$/g, "");
+  }
+  return "";
+}
+
 export default function Chat() {
   const [conversations, setConversations] = useState<Conversation[]>(readConversations);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -132,7 +145,28 @@ export default function Chat() {
   const sendMessage = async (event?: FormEvent) => {
     event?.preventDefault();
     const text = draft.trim();
-    if (!text || busy || !model) return;
+    const youtubeQuery = youtubeQueryFromCommand(text);
+    if (!text || busy || (!model && !youtubeQuery)) return;
+    if (youtubeQuery) {
+      if (!isTauri()) { setNotice("YouTube voice and computer actions are available in the installed JARVIS desktop app."); return; }
+      setBusy(true); setDraft(""); setNotice("");
+      try {
+        await invoke("open_youtube_search", { query: youtubeQuery });
+        const id = conversationId || crypto.randomUUID();
+        setConversationId(id);
+        const userMessage: Message = { role: "user", content: text };
+        const assistantMessage: Message = { role: "assistant", content: `Opening YouTube search results for “${youtubeQuery}”. Choose a video to play.` };
+        const title = text.length > 48 ? `${text.slice(0, 45)}…` : text;
+        setConversations(current => {
+          const existing = current.find(item => item.id === id);
+          if (existing) return current.map(item => item.id === id ? { ...item, updatedAt: Date.now(), messages: [...item.messages, userMessage, assistantMessage] } : item);
+          return [{ id, title, updatedAt: Date.now(), messages: [userMessage, assistantMessage] }, ...current];
+        });
+      } catch (error) {
+        setNotice(error instanceof Error ? error.message : String(error));
+      } finally { setBusy(false); }
+      return;
+    }
     const id = conversationId || crypto.randomUUID();
     setConversationId(id); setDraft(""); setNotice(""); setBusy(true);
     const userMessage: Message = { role: "user", content: text };
@@ -247,7 +281,7 @@ export default function Chat() {
         {notice && <div className={`chat-notice ${status === "offline" || status === "no-model" ? "notice-warning" : ""}`} role="status">{notice}<button onClick={() => setNotice("")} aria-label="Dismiss message"><X size={14}/></button></div>}
         <div ref={bottomRef}/>
       </div>
-      <div className="composer-zone">{voiceNotice && <div className="chat-notice" role="status">{voiceNotice}<button onClick={() => setVoiceNotice("")} aria-label="Dismiss message"><X size={14}/></button></div>}<form className="composer" onSubmit={sendMessage}><textarea ref={textareaRef} value={draft} onChange={event => setDraft(event.target.value)} onKeyDown={handleKeys} placeholder={model ? `Message ${preferences.assistantName}… (Enter to send, Shift + Enter for new line)` : provider === "gemini" ? "Set up Gemini in preferences to start" : "Connect Ollama and select a model to start"} aria-label={`Message ${preferences.assistantName}`} rows={1} disabled={!model || busy}/><div className="composer-tools"><div className="composer-note"><Shield size={12}/> {provider === "gemini" ? "Sent to Google Gemini using your API key" : "Sent to your configured local Ollama only"}</div><div className="composer-buttons">{busy ? provider === "ollama" ? <button className="send-button stop-button" type="button" onClick={() => abortRef.current?.abort()} aria-label="Stop generating"><X size={17}/></button> : <button className="send-button stop-button" type="button" disabled aria-label="Waiting for Gemini"><Activity size={15}/></button> : <><button className={`send-button voice-button ${listening ? "is-listening" : ""}`} type="button" onClick={toggleVoiceInput} disabled={!model || busy} aria-label={listening ? "Stop voice input" : "Start voice input"} title={listening ? "Stop listening" : "Speak a message"}><Mic size={16}/></button><button className="send-button" type="submit" disabled={!draft.trim() || !model} aria-label="Send message"><ArrowUp size={17}/></button></>}</div></div></form><div className="composer-disclaimer">{preferences.voiceOutput ? "Voice replies enabled · " : ""}{provider === "gemini" ? "Your messages are sent to Google. Gemini responses may be inaccurate." : "Your chosen local model may make mistakes."}</div></div>
+      <div className="composer-zone">{voiceNotice && <div className="chat-notice" role="status">{voiceNotice}<button onClick={() => setVoiceNotice("")} aria-label="Dismiss message"><X size={14}/></button></div>}<form className="composer" onSubmit={sendMessage}><textarea ref={textareaRef} value={draft} onChange={event => setDraft(event.target.value)} onKeyDown={handleKeys} placeholder={model ? `Message ${preferences.assistantName}… (try “play TMKOC on YouTube”)` : provider === "gemini" ? "Set up Gemini to chat, or try “play TMKOC on YouTube”" : "Connect Ollama to chat, or try “play TMKOC on YouTube”"} aria-label={`Message ${preferences.assistantName}`} rows={1} disabled={busy}/><div className="composer-tools"><div className="composer-note"><Shield size={12}/> {provider === "gemini" ? "Sent to Google Gemini using your API key" : "Sent to your configured local Ollama only"}</div><div className="composer-buttons">{busy ? provider === "ollama" ? <button className="send-button stop-button" type="button" onClick={() => abortRef.current?.abort()} aria-label="Stop generating"><X size={17}/></button> : <button className="send-button stop-button" type="button" disabled aria-label="Waiting for Gemini"><Activity size={15}/></button> : <><button className={`send-button voice-button ${listening ? "is-listening" : ""}`} type="button" onClick={toggleVoiceInput} disabled={!model || busy} aria-label={listening ? "Stop voice input" : "Start voice input"} title={listening ? "Stop listening" : "Speak a message"}><Mic size={16}/></button><button className="send-button" type="submit" disabled={!draft.trim() || (!model && !youtubeQueryFromCommand(draft))} aria-label="Send message"><ArrowUp size={17}/></button></>}</div></div></form><div className="composer-disclaimer">{preferences.voiceOutput ? "Voice replies enabled · " : ""}{provider === "gemini" ? "Your messages are sent to Google. Gemini responses may be inaccurate." : "Your chosen local model may make mistakes."}</div></div>
     </main>
     {settingsOpen && <div className="settings-overlay" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setSettingsOpen(false); }}><section className="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settings-title"><div className="settings-heading"><div><div className="history-label">PROVIDER &amp; PERSONALIZATION</div><h2 id="settings-title">Preferences</h2></div><button className="icon-button" aria-label="Close settings" onClick={() => setSettingsOpen(false)}><X size={17}/></button></div>
       {isTauri() && <><div className="history-label settings-section-label">AI PROVIDER</div><label htmlFor="provider-select">Use JARVIS with</label><select id="provider-select" className="provider-settings-select" value={provider} onChange={event => { const next = event.target.value as Provider; setProvider(next); setModel(""); setModels([]); }}><option value="gemini">Google Gemini · Cloud</option><option value="ollama">Ollama · Local</option></select>{provider === "gemini" && <><label className="api-key-label" htmlFor="gemini-key">Gemini API key</label><input id="gemini-key" type="password" autoComplete="off" value={geminiKeyDraft} onChange={event => setGeminiKeyDraft(event.target.value)} placeholder={geminiKeySaved ? "Saved securely on this device" : "Paste your Gemini API key"}/><div className="settings-hint">{geminiKeySaved ? "A key is saved in your operating system credential store. It is never saved in browser storage." : "Your key is sent to JARVIS’s native layer and stored in your operating system credential store."} Messages are sent to Google when you chat with Gemini.</div><div className="settings-actions key-actions"><button className="settings-cancel" onClick={() => void refreshModels()}>Check Gemini</button>{geminiKeySaved && <button className="settings-cancel" disabled={keyBusy} onClick={() => void removeGeminiKey()}>Remove key</button>}<button className="settings-save" disabled={!geminiKeyDraft.trim() || keyBusy} onClick={() => void saveGeminiKey()}>{keyBusy ? "Saving…" : geminiKeySaved ? "Update key" : "Save key"}</button></div><a className="ollama-help" href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">Get a Gemini API key in Google AI Studio ↗</a></>}</>}
