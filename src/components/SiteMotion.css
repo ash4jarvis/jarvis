@@ -1,0 +1,191 @@
+.scroll-progress {
+  --scroll-progress: 0;
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: 1001;
+  width: 100%;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(90deg, #d6e3ea 0%, #fff 52%, #95aebd 100%);
+  box-shadow: 0 0 12px rgb(214 227 234 / 24%);
+  transform: scaleX(var(--scroll-progress));
+  transform-origin: left center;
+}
+
+.topbar {
+  transition: background-color .35s ease, border-color .35s ease, height .35s ease;
+}
+
+.topbar.site-scrolled {
+  background: rgb(5 5 5 / 92%);
+  border-bottom-color: rgb(255 255 255 / 13%);
+}
+
+.brand {
+  color: #f5f5f3;
+}
+
+.hero h1,
+.page-hero h1 {
+  color: #f5f5f3;
+}
+
+.manifesto h2 span,
+.section-heading h2 span,
+.closing h2 span,
+.page-hero h1 span {
+  color: #b8c3c9;
+}
+
+.hero-grid {
+  transform: translate3d(0, var(--hero-scroll-shift, 0px), 0);
+  will-change: transform;
+}
+
+.orb-stage {
+  transform: translate3d(0, calc(-52% - var(--hero-orb-scroll-shift, 0px)), 0);
+}
+
+.hero h1 em {
+  color: #c8d8e2;
+}
+
+.motion-ready [data-reveal="pending"] {
+  opacity: 0;
+  filter: blur(7px);
+  transition-property: opacity, transform, filter, clip-path;
+  transition-duration: .76s;
+  transition-timing-function: cubic-bezier(.2, .72, .18, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform, filter;
+}
+
+.motion-ready [data-reveal="pending"][data-reveal-effect="card"] {
+  transform: translate3d(0, 34px, 0) scale(.975);
+}
+
+.motion-ready [data-reveal="pending"][data-reveal-effect="heading"] {
+  transform: translate3d(0, 30px, 0);
+  clip-path: inset(0 0 14% 0);
+}
+
+.motion-ready [data-reveal="pending"][data-reveal-effect="soft"] {
+  transform: translate3d(0, 24px, 0) scale(.99);
+}
+
+.motion-ready [data-reveal="pending"][data-reveal-effect="left"] {
+  transform: translate3d(-28px, 12px, 0);
+}
+
+.motion-ready [data-reveal="pending"][data-reveal-effect="right"] {
+  transform: translate3d(28px, 12px, 0);
+}
+
+.motion-ready [data-reveal="visible"] {
+  opacity: 1;
+  filter: blur(0);
+  transform: translate3d(0, 0, 0) scale(1);
+  clip-path: inset(0);
+  will-change: auto;
+}
+
+.motion-ready [data-reveal="visible"].feature-card:hover,
+.motion-ready [data-reveal="visible"].download-card:hover,
+.motion-ready [data-reveal="visible"].opensource-grid article:hover,
+.motion-ready [data-reveal="visible"].requirements-grid article:hover {
+  transform: translate3d(0, -5px, 0) scale(1);
+}
+
+.feature-card,
+.download-card,
+.opensource-grid article,
+.requirements-grid article {
+  transition: transform .35s cubic-bezier(.2, .7, .2, 1), border-color .35s, background-color .35s;
+}
+
+.roadmap-panel {
+  margin-top: 26px;
+  padding: clamp(24px, 5vw, 42px);
+  border: 1px solid #282b2d;
+  border-radius: 9px;
+  background:
+    radial-gradient(ellipse at 100% 0%, rgb(191 215 226 / 8%), transparent 45%),
+    linear-gradient(140deg, #0d0f10, #080909);
+}
+
+.roadmap-panel h2 {
+  margin: 14px 0 10px;
+  font-size: clamp(24px, 3vw, 34px);
+  font-weight: 500;
+  letter-spacing: -.05em;
+}
+
+.roadmap-panel p {
+  max-width: 680px;
+  margin: 0 0 22px;
+  color: #a6a9aa;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.hero .hero-copy,
+.hero .orb-stage {
+  will-change: transform, opacity;
+}
+
+@media (max-width: 600px) {
+  .hero .orb-stage {
+    top: 66%;
+    right: -17%;
+    width: 76vw;
+    opacity: .22;
+    transform: translate3d(0, calc(-25% - var(--hero-orb-scroll-shift, 0px)), 0);
+  }
+
+  .hero-copy {
+    z-index: 2;
+  }
+
+  .hero h1 {
+    max-width: 8ch;
+    color: #f5f5f3;
+    text-shadow: 0 2px 20px rgb(0 0 0 / 85%);
+  }
+
+  .roadmap-panel {
+    margin-top: 18px;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .hero-grid,
+  .orb-stage {
+    will-change: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .scroll-progress {
+    display: none;
+  }
+
+  .motion-ready [data-reveal="pending"],
+  .motion-ready [data-reveal="visible"] {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    clip-path: none;
+    transition: none;
+    will-change: auto;
+  }
+
+  .hero-grid,
+  .orb-stage {
+    transform: none;
+    will-change: auto;
+  }
+}

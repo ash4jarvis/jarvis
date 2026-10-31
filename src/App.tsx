@@ -3,13 +3,14 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import "./App.css";
+import "./Chat.css";
+import "./Developer.css";
+import "./components/SiteMotion.css";
 import Index from "./pages/Index";
 import Chat from "./pages/Chat";
 import Developer from "./pages/Developer";
 import NotFound from "./pages/NotFound";
-import "./App.css";
-import "./Chat.css";
-import "./Developer.css";
 
 const queryClient = new QueryClient();
 

@@ -1,51 +1,98 @@
 import { useEffect, useRef } from "react";
 
-const revealTargets = ".manifesto, .section-heading, .feature-card, .platform-inner, .closing, .page-hero, .download-card, .release-bar, .docs-layout, .faq-item, .policy-content section, .opensource-grid article, .notice-panel, .install-info, .previous-releases";
+const revealTargets = [
+  ".manifesto",
+  ".section-heading",
+  ".feature-card",
+  ".platform-inner",
+  ".closing",
+  ".page-hero",
+  ".download-card",
+  ".download-release-summary",
+  ".download-recommendation",
+  ".release-bar",
+  ".docs-layout",
+  ".faq-item",
+  ".policy-content section",
+  ".opensource-grid article",
+  ".notice-panel",
+  ".install-info",
+  ".previous-releases",
+  ".requirements-grid article",
+  ".install-guide",
+  ".roadmap-panel",
+].join(", ");
+
+function revealEffect(node: HTMLElement, index: number) {
+  if (node.matches(".feature-card, .download-card, .opensource-grid article, .requirements-grid article")) return "card";
+  if (node.matches(".section-heading, .page-hero")) return "heading";
+  if (node.matches(".manifesto, .platform-inner, .closing, .docs-layout")) return "soft";
+  return index % 2 === 0 ? "left" : "right";
+}
 
 export default function SiteMotion() {
-  const cursorRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
     const nodes = Array.from(document.querySelectorAll<HTMLElement>(revealTargets));
     let observer: IntersectionObserver | undefined;
-    if (!reducedMotion && "IntersectionObserver" in window) {
+    let frame = 0;
+
+    if (!reducedMotion && "IntersectionObserver" in window && nodes.length) {
       document.documentElement.classList.add("motion-ready");
       observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            (entry.target as HTMLElement).dataset.reveal = "visible";
-            observer?.unobserve(entry.target);
-          }
+          if (!entry.isIntersecting) return;
+          const node = entry.target as HTMLElement;
+          node.dataset.reveal = "visible";
+          observer?.unobserve(node);
         });
-      }, { threshold: 0.12, rootMargin: "0px 0px -4% 0px" });
+      }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
+
       nodes.forEach((node, index) => {
+        const siblings = Array.from(node.parentElement?.children ?? [])
+          .filter(child => (child as HTMLElement).matches(revealTargets));
+        const groupIndex = Math.max(0, siblings.indexOf(node));
         node.dataset.reveal = "pending";
-        node.style.setProperty("--reveal-delay", `${Math.min(index % 4, 3) * 70}ms`);
+        node.dataset.revealEffect = revealEffect(node, index);
+        node.style.setProperty("--reveal-delay", `${Math.min(groupIndex, 5) * 85}ms`);
         observer?.observe(node);
       });
     }
-    const cursor = cursorRef.current;
-    if (!cursor || reducedMotion || !finePointer) return () => observer?.disconnect();
-    let frame = 0;
-    const move = (event: PointerEvent) => {
+
+    const topbar = document.querySelector<HTMLElement>(".topbar");
+    const shell = document.querySelector<HTMLElement>(".site-shell");
+    const updateScrollDecorations = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        cursor.style.setProperty("--cursor-x", `${event.clientX}px`);
-        cursor.style.setProperty("--cursor-y", `${event.clientY}px`);
-        cursor.classList.add("cursor-visible");
+        const scrollRange = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = scrollRange > 0 ? window.scrollY / scrollRange : 0;
+        progressRef.current?.style.setProperty("--scroll-progress", String(Math.min(1, Math.max(0, progress))));
+        topbar?.classList.toggle("site-scrolled", window.scrollY > 16);
+        const shift = Math.min(window.scrollY * 0.09, 54);
+        shell?.style.setProperty("--hero-scroll-shift", `${shift}px`);
+        shell?.style.setProperty("--hero-orb-scroll-shift", `${shift * 0.32}px`);
       });
     };
-    const hover = (event: PointerEvent) => {
-      cursor.classList.toggle("cursor-over-interactive", Boolean((event.target as HTMLElement | null)?.closest("a, button, [role=button], .feature-card, .download-card")));
-    };
-    window.addEventListener("pointermove", move, { passive: true });
-    document.addEventListener("pointerover", hover, { passive: true });
+
+    if (!reducedMotion) {
+      updateScrollDecorations();
+      window.addEventListener("scroll", updateScrollDecorations, { passive: true });
+      window.addEventListener("resize", updateScrollDecorations, { passive: true });
+    }
+
     return () => {
-      observer?.disconnect(); cancelAnimationFrame(frame);
-      window.removeEventListener("pointermove", move);
-      document.removeEventListener("pointerover", hover);
+      observer?.disconnect();
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", updateScrollDecorations);
+      window.removeEventListener("resize", updateScrollDecorations);
+      document.documentElement.classList.remove("motion-ready");
+      topbar?.classList.remove("site-scrolled");
+      shell?.style.removeProperty("--hero-scroll-shift");
+      shell?.style.removeProperty("--hero-orb-scroll-shift");
     };
   }, []);
-  return <div className="cursor-orbit" ref={cursorRef} aria-hidden="true"><span/><i/></div>;
+
+  return <div className="scroll-progress" ref={progressRef} aria-hidden="true" />;
 }
