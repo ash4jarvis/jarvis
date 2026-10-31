@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08090a">
+  <title>Local model chat guide — JARVIS</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#08090a;color:#f4f4f1;font:16px/1.8 system-ui,sans-serif}.wrap{max-width:760px;margin:0 auto;padding:64px 24px 100px}a{color:#ddd}h1{font-size:clamp(38px,8vw,64px);letter-spacing:-.06em;line-height:1.05;margin:20px 0}h2{font-size:22px;letter-spacing:-.04em;margin-top:42px}.eyebrow{font:11px monospace;letter-spacing:.12em;color:#999}p,li{color:#aaa}code{color:#eee;background:#171819;padding:3px 6px;border-radius:4px;font-size:.9em}.callout{border:1px solid #3b3934;background:#121210;padding:16px 19px;border-radius:7px;color:#d5d0c6}a.back{display:inline-block;margin-top:28px}
+  </style>
+</head>
+<body><main class="wrap">
+  <div class="eyebrow">JARVIS / LOCAL CHAT GUIDE</div>
+  <h1>Chat with a model on your device.</h1>
+  <p>The JARVIS website includes an experimental chat interface that connects to Ollama running on the same computer. It is a browser-based prototype, not the separate JARVIS Desktop application.</p>
+  <h2>What you need</h2>
+  <ul><li>Ollama installed and running.</li><li>At least one model available in Ollama.</li><li>A browser permitted to connect to Ollama's local API.</li></ul>
+  <p>JARVIS checks <code>http://localhost:11434</code> by default. Use Local connection settings in chat if Ollama listens on a different loopback port.</p>
+  <h2>Browser access and safety</h2>
+  <p>Because a website and the local Ollama server are different browser origins, requests can be blocked unless Ollama allows the exact JARVIS website origin. Ollama's <code>OLLAMA_ORIGINS</code> setting can be used for trusted origins; see Ollama's official documentation for operating-system-specific setup.</p>
+  <div class="callout"><strong>Security:</strong> Allow only the exact trusted JARVIS origin. Do not use wildcard origins or expose Ollama to the public internet. A script running on an allowed origin could send prompts to your local model.</div>
+  <h2>Data and limitations</h2>
+  <p>Conversation history and the local endpoint are stored in this browser's local storage. Prompts go directly to the Ollama server configured in chat. Browser local storage is not encrypted, and this prototype has no secure credential store.</p>
+  <p>This prototype supports text chat through Ollama's model-list and streaming chat APIs. It does not include cloud providers, voice, file uploads, image understanding, computer control, native desktop packaging, or SQLite persistence. The app does not certify model language, context, or multimodal capabilities.</p>
+  <p>If the connection fails, confirm Ollama is running and that only the trusted JARVIS origin is allowed.</p>
+  <a class="back" href="/chat">← Back to JARVIS chat</a>
+</main></body></html>

@@ -8,12 +8,13 @@ This inventory reflects the repository inspected for the expansion roadmap. “I
 
 - **Implemented:** Vite + React 19 + TypeScript client-side application; React Router routes live in `src/App.tsx`; Tailwind and shadcn/Radix UI dependencies are available.
 - **Implemented:** Website code is in `src/`, static assets in `public/`, deployment configuration includes Vercel routing.
-- **Not present:** Tauri, Rust, SQLite, desktop packaging, API/server layer, provider adapters, persistence layer, test suite, CI, or platform adapters.
+- **Not present:** Tauri, Rust, SQLite, desktop packaging, API/server layer, provider framework, automated test suite, CI, or platform adapters.
 - **Deployment note:** This is currently a single Vite website project. There is no separate desktop project or independent desktop build yet.
 
 ## Website
 
 - **Implemented:** Responsive dark-themed homepage, animated CSS orb, feature overview, download status page, documentation topic selector, FAQ accordion, privacy page, open-source page, mobile navigation, reduced-motion stylesheet, title/description updates, Open Graph metadata, favicon, robots file, and sitemap.
+- **Implemented:** Experimental `/chat` interface connects directly from the browser to same-device Ollama `/api/tags` and streaming `/api/chat`, stores conversation history in browser local storage, and supports model refresh, message cancellation, and conversation deletion.
 - **Implemented:** GitHub repository/release URLs can be configured with `VITE_GITHUB_REPO` and `VITE_GITHUB_RELEASES_URL`.
 - **Honest limitation:** Download cards are explicitly “Coming soon”; the site does not fetch GitHub release metadata or asset checksums, and no packages are declared available.
 - **Not present:** Dedicated language support, release notes, tutorials, roadmap, security reporting, community showcase, developer/API reference, and marketplace-information pages. Documentation content is currently short static guidance rather than a full docs system.
