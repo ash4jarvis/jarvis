@@ -15,6 +15,8 @@ This inventory reflects the repository inspected for the expansion roadmap. “I
 
 - **Implemented:** Responsive dark-themed homepage, animated CSS orb, feature overview, download status page, documentation topic selector, FAQ accordion, privacy page, open-source page, mobile navigation, reduced-motion stylesheet, title/description updates, Open Graph metadata, favicon, robots file, and sitemap.
 - **Implemented:** Experimental `/chat` interface connects directly from the browser to same-device Ollama `/api/tags` and streaming `/api/chat`, stores conversation history in browser local storage, and supports model refresh, message cancellation, and conversation deletion.
+- **Implemented:** `/developer` provides streamed coding assistance through local Ollama, selectable task/personality/language, source-text context, and a searchable reference library with personal cheat sheets stored in browser local storage.
+- **Not implemented:** Developer Mode does not edit project files, run terminal commands, tests, builds, scans, or Git actions. It does not provide sandboxed execution, code diffs, backups, or undo. See `docs/developer-mode.md`.
 - **Implemented:** GitHub repository/release URLs can be configured with `VITE_GITHUB_REPO` and `VITE_GITHUB_RELEASES_URL`.
 - **Honest limitation:** Download cards are explicitly “Coming soon”; the site does not fetch GitHub release metadata or asset checksums, and no packages are declared available.
 - **Not present:** Dedicated language support, release notes, tutorials, roadmap, security reporting, community showcase, developer/API reference, and marketplace-information pages. Documentation content is currently short static guidance rather than a full docs system.

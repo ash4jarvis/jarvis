@@ -27,7 +27,7 @@ const faqs = [
 function Header() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
-  const links = [["Features", "/features"], ["Download", "/download"], ["Docs", "/docs"], ["Open source", "/open-source"]];
+  const links = [["Features", "/features"], ["Download", "/download"], ["Docs", "/docs"], ["Developer", "/developer"], ["Open source", "/open-source"]];
   return <header className="topbar"><Link to="/" className="brand"><span className="brand-mark"><span /></span>JARVIS</Link><button className="mobile-toggle" aria-label={open ? "Close navigation" : "Open navigation"} onClick={() => setOpen(!open)}>{open ? <X /> : <Menu />}</button><nav className={open ? "nav-links open" : "nav-links"}>{links.map(([label, href]) => <Link key={href} className={pathname === href ? "active" : ""} onClick={() => setOpen(false)} to={href}>{label}</Link>)}<Link className="nav-cta" to="/chat" onClick={() => setOpen(false)}>Try local chat <ArrowUpRight size={15}/></Link></nav></header>;
 }
 function Footer() { return <footer className="footer"><div><Link to="/" className="brand"><span className="brand-mark"><span /></span>JARVIS</Link><p>Your AI. Your Device. Your Rules.</p></div><div className="footer-links"><Link to="/privacy">Privacy</Link><Link to="/faq">FAQ</Link><Link to="/open-source">Open source</Link>{repo && <a href={repo} target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={13}/></a>}</div><small>© {new Date().getFullYear()} JARVIS · MIT licensed project code</small></footer>; }
