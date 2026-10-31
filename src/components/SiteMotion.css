@@ -30,6 +30,13 @@
   color: #f5f5f3;
 }
 
+.feature-card h3,
+.download-card h3,
+.opensource-grid article h2,
+.requirements-grid h3 {
+  color: #f1f1ef;
+}
+
 .manifesto h2 span,
 .section-heading h2 span,
 .closing h2 span,
