@@ -13,6 +13,7 @@ export type GitHubRelease = {
   published_at: string;
   html_url: string;
   body: string;
+  prerelease: boolean;
   assets: GitHubReleaseAsset[];
 };
 
@@ -32,7 +33,7 @@ function isRepositoryUrl(value: string, owner: string, repo: string, section: "t
   }
 }
 
-export async function fetchStableReleases(signal: AbortSignal): Promise<GitHubRelease[]> {
+export async function fetchPublishedReleases(signal: AbortSignal): Promise<GitHubRelease[]> {
   const { owner, repo } = getRepository();
   const response = await fetch(`https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/releases?per_page=100`, {
     headers: { Accept: "application/vnd.github+json" },
@@ -44,7 +45,7 @@ export async function fetchStableReleases(signal: AbortSignal): Promise<GitHubRe
 
   return payload
     .filter((release): release is Record<string, unknown> => Boolean(release) && typeof release === "object" && !Array.isArray(release))
-    .filter(release => release.draft === false && release.prerelease === false)
+    .filter(release => release.draft === false && typeof release.prerelease === "boolean")
     .map(release => {
       if (typeof release.tag_name !== "string" || !release.tag_name || typeof release.published_at !== "string" || Number.isNaN(Date.parse(release.published_at)) || typeof release.html_url !== "string" || !isRepositoryUrl(release.html_url, owner, repo, "tag")) {
         throw new Error("A published release has incomplete or untrusted metadata.");
@@ -67,6 +68,7 @@ export async function fetchStableReleases(signal: AbortSignal): Promise<GitHubRe
         published_at: release.published_at,
         html_url: release.html_url,
         body: typeof release.body === "string" ? release.body : "",
+        prerelease: release.prerelease === true,
         assets,
       };
     })

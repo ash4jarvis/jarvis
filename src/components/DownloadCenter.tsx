@@ -1,6 +1,6 @@
 import { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDownToLine, ArrowUpRight, BadgeCheck, CalendarDays, Check, ChevronDown, CircleAlert, Download, ExternalLink, HardDrive, Laptop, Monitor, RefreshCw, ShieldAlert, Terminal } from "lucide-react";
-import { GitHubRelease, GitHubReleaseAsset, displayVersion, fetchStableReleases } from "@/lib/githubReleases";
+import { GitHubRelease, GitHubReleaseAsset, displayVersion, fetchPublishedReleases } from "@/lib/githubReleases";
 import { releasesUrl } from "@/lib/siteConfig";
 import "./DownloadCenter.css";
 
@@ -104,10 +104,10 @@ export default function DownloadCenter() {
     setState("loading");
     setError("");
     try {
-      const stable = await fetchStableReleases(controller.signal);
+      const published = await fetchPublishedReleases(controller.signal);
       if (controller.signal.aborted) return;
-      setReleases(stable);
-      setState(stable.length ? "ready" : "none");
+      setReleases(published);
+      setState(published.length ? "ready" : "none");
     } catch (reason) {
       if (controller.signal.aborted) return;
       setError(reason instanceof Error ? reason.message : "The public GitHub release feed could not be read.");
@@ -122,22 +122,22 @@ export default function DownloadCenter() {
   }, [loadReleases]);
 
   const latest = releases[0] || null;
-  const previous = releases.slice(1, 6);
+  const previous = releases.filter(release => !release.prerelease).slice(0, 5);
   const recommendation = useMemo(() => latest ? recommendedSlot(device, latest.assets) : undefined, [device, latest]);
   const recommendedAsset = latest && recommendation ? assetFor(latest, recommendation) : undefined;
   const deviceDescription = device.architecture === "unknown" ? `${platformLabel[device.platform]} · architecture not confirmed` : `${platformLabel[device.platform]} · ${device.architecture}`;
 
   return <main className="page-main download-page">
-    <header className="page-hero download-hero"><div className="section-kicker">JARVIS DESKTOP · OFFICIAL RELEASES</div><h1>One download.<br/><span>Your own orbit.</span></h1><p>Find the package that matches your operating system and processor. Links appear only for installer files present in a published stable GitHub release.</p><div className="detected"><span className="live-dot"/> YOUR DEVICE <b>{deviceDescription}</b></div></header>
+    <header className="page-hero download-hero"><div className="section-kicker">JARVIS DESKTOP · OFFICIAL RELEASES</div><h1>One download.<br/><span>Your own orbit.</span></h1><p>Find the package that matches your operating system and processor. Links appear only for installer files attached to a published GitHub release; previews are labeled.</p><div className="detected"><span className="live-dot"/> YOUR DEVICE <b>{deviceDescription}</b></div></header>
 
     {state === "loading" && <section className="download-release-loading" aria-label="Loading JARVIS releases" aria-busy="true"><span className="download-spinner"/><div><b>Checking official releases</b><p>Verifying published JARVIS versions and installer files…</p></div></section>}
     {state === "error" && <div className="download-warning download-error" role="alert"><CircleAlert size={17}/><div><b>Could not verify GitHub Releases.</b><p>{error} No direct download links are shown until the feed can be checked.</p><button className="release-retry" onClick={() => void loadReleases()}><RefreshCw size={14}/> Try again</button><a href={releasesUrl} target="_blank" rel="noreferrer">Open official Releases <ArrowUpRight size={13}/></a></div></div>}
-    {state === "none" && <div className="download-empty" role="status"><ShieldAlert size={20}/><div><b>No published stable release yet</b><p>JARVIS will show downloads here after a stable GitHub release is published. Prereleases and draft releases are not treated as installable releases.</p><a href={releasesUrl} target="_blank" rel="noreferrer">View GitHub Releases <ArrowUpRight size={14}/></a></div></div>}
+    {state === "none" && <div className="download-empty" role="status"><ShieldAlert size={20}/><div><b>No published installer release yet</b><p>JARVIS will show downloads here after a GitHub release with installer files is published. Draft releases are not shown.</p><a href={releasesUrl} target="_blank" rel="noreferrer">View GitHub Releases <ArrowUpRight size={14}/></a></div></div>}
 
     {state === "ready" && latest && <>
-      <section className="download-release-summary" aria-label="Latest stable release">
+      <section className="download-release-summary" aria-label={latest.prerelease ? "Latest preview release" : "Latest stable release"}>
         <div className="release-summary-icon"><Download size={20}/></div>
-        <div className="release-summary-main"><div className="section-kicker">LATEST STABLE RELEASE</div><h2>{displayVersion(latest.tag_name)}</h2><p>{latest.name}</p></div>
+        <div className="release-summary-main"><div className="section-kicker">{latest.prerelease ? "LATEST PREVIEW RELEASE" : "LATEST STABLE RELEASE"}</div><h2>{displayVersion(latest.tag_name)}</h2><p>{latest.name}</p></div>
         <div className="release-summary-date"><CalendarDays size={15}/><span>Published <b>{formatDate(latest.published_at)}</b></span></div>
         <a className="release-notes-link" href={latest.html_url} target="_blank" rel="noreferrer">Full release <ExternalLink size={14}/></a>
       </section>
@@ -161,10 +161,10 @@ export default function DownloadCenter() {
       })}</div>
 
       {latest.body && <details className="release-notes-panel"><summary><span><div className="section-kicker">WHAT'S NEW</div><b>Release notes · {displayVersion(latest.tag_name)}</b></span><ChevronDown size={17}/></summary><pre>{latest.body}</pre></details>}
-      <section className="previous-releases"><div><div className="section-kicker">RELEASE HISTORY</div><h2>Earlier stable versions.</h2><p>Prereleases and drafts are excluded. Every link opens the official GitHub release.</p></div>{previous.length ? <ul className="previous-release-list">{previous.map(release => <li key={release.tag_name}><div><b>{displayVersion(release.tag_name)}</b><span>{formatDate(release.published_at)}</span></div><a href={release.html_url} target="_blank" rel="noreferrer" aria-label={`Release notes for ${displayVersion(release.tag_name)}`}>Release notes <ArrowUpRight size={14}/></a></li>)}</ul> : <p className="previous-empty">No earlier stable releases are available.</p>}</section>
+      <section className="previous-releases"><div><div className="section-kicker">RELEASE HISTORY</div><h2>Earlier stable versions.</h2><p>Preview versions and drafts are excluded from stable history. Every link opens the official GitHub release.</p></div>{previous.length ? <ul className="previous-release-list">{previous.map(release => <li key={release.tag_name}><div><b>{displayVersion(release.tag_name)}</b><span>{formatDate(release.published_at)}</span></div><a href={release.html_url} target="_blank" rel="noreferrer" aria-label={`Release notes for ${displayVersion(release.tag_name)}`}>Release notes <ArrowUpRight size={14}/></a></li>)}</ul> : <p className="previous-empty">No earlier stable releases are available.</p>}</section>
     </>}
 
-    {(state === "loading" || state === "none" || state === "error") && <section className="unreleased-packages"><div className="download-section-heading"><div><div className="section-kicker">{state === "error" ? "RELEASE FEED UNAVAILABLE · DOWNLOADS DISABLED" : state === "loading" ? "CHECKING OFFICIAL RELEASE FEED" : "WINDOWS X64 RELEASE PENDING · MACOS/LINUX COMING SOON"}</div><h2>Installer availability.</h2></div></div><div className="download-grid download-grid-four unreleased-package-grid">{slots.map(slot => { const Icon = platformIcon(slot.platform); const statusLabel = state === "loading" ? "Checking release…" : state === "error" ? "Unable to verify" : "Coming soon"; return <article className="download-card unreleased-package-card" key={slot.id}><div className="download-card-head"><div className="download-platform-mark"><Icon size={18}/></div><span className="download-arch-pill">{slot.detail}</span></div><h3>{slot.title}</h3><p className="download-file-kind">{slot.fileLabel} <span>({slot.extension})</span></p><span className="unreleased-status">{statusLabel}</span></article>; })}</div><p className="unreleased-note">No download buttons are shown until a real matching installer is published in a stable GitHub release.</p></section>}
+    {(state === "loading" || state === "none" || state === "error") && <section className="unreleased-packages"><div className="download-section-heading"><div><div className="section-kicker">{state === "error" ? "RELEASE FEED UNAVAILABLE · DOWNLOADS DISABLED" : state === "loading" ? "CHECKING OFFICIAL RELEASE FEED" : "WINDOWS X64 RELEASE PENDING · MACOS/LINUX COMING SOON"}</div><h2>Installer availability.</h2></div></div><div className="download-grid download-grid-four unreleased-package-grid">{slots.map(slot => { const Icon = platformIcon(slot.platform); const statusLabel = state === "loading" ? "Checking release…" : state === "error" ? "Unable to verify" : "Coming soon"; return <article className="download-card unreleased-package-card" key={slot.id}><div className="download-card-head"><div className="download-platform-mark"><Icon size={18}/></div><span className="download-arch-pill">{slot.detail}</span></div><h3>{slot.title}</h3><p className="download-file-kind">{slot.fileLabel} <span>({slot.extension})</span></p><span className="unreleased-status">{statusLabel}</span></article>; })}</div><p className="unreleased-note">No download buttons appear until a real installer is attached to a published GitHub release.</p></section>}
 
       <section className="system-requirements"><div className="download-section-heading"><div><div className="section-kicker">BEFORE YOU INSTALL</div><h2>System requirements.</h2></div></div><div className="requirements-grid"><article><Monitor size={18}/><h3>Windows</h3><p>64-bit x64 package. Requires a supported Windows version and Microsoft Edge WebView2 Runtime. Check this release's notes for tested Windows versions.</p></article><article><Laptop size={18}/><h3>macOS</h3><p>Choose the DMG matching Apple Silicon (ARM64) or Intel (x64). Check the release notes for the minimum macOS version tested.</p></article><article><Terminal size={18}/><h3>Linux</h3><p>64-bit x86_64 packages. Desktop WebKitGTK runtime and distribution compatibility may vary; use the release notes for tested distributions.</p></article></div><p className="requirements-caveat"><ShieldAlert size={14}/> An available file means the asset was published; it is not a certification of platform support. JARVIS's current chat needs Ollama running locally; Ollama is not bundled with the installer.</p></section>
 
@@ -174,7 +174,7 @@ export default function DownloadCenter() {
         <details className="install-guide"><summary><span><Terminal size={16}/> Linux · AppImage or DEB</span><ChevronDown size={16}/></summary><div className="install-guide-content"><ol><li>Choose a published x86_64 AppImage or Debian package that matches your distribution.</li><li>For AppImage, use your file manager's Properties → Permissions to allow execution, then open the file. For DEB, open it with your distribution's software installer and follow its prompts.</li><li>Check the release notes for tested distributions and any WebKitGTK dependencies before launching.</li><li>Install and start Ollama separately if you want to use local chat.</li></ol><p className="security-callout"><ShieldAlert size={15}/> Download only from the linked official GitHub release. Review the SHA-256 digest when GitHub provides one; this release feed does not provide a digest for every file.</p></div></details>
       </section>
 
-    {state === "ready" && !latest && <div className="download-empty" role="status"><ShieldAlert size={20}/><div><b>No published stable release yet</b><p>No stable release with valid public metadata was found. Drafts and prereleases are never shown as downloads.</p><a href={releasesUrl} target="_blank" rel="noreferrer">View GitHub Releases <ArrowUpRight size={14}/></a></div></div>}
+    {state === "ready" && !latest && <div className="download-empty" role="status"><ShieldAlert size={20}/><div><b>No published installer release yet</b><p>No published release with valid public metadata was found. Drafts are never shown as downloads.</p><a href={releasesUrl} target="_blank" rel="noreferrer">View GitHub Releases <ArrowUpRight size={14}/></a></div></div>}
   </main>;
 }
 
