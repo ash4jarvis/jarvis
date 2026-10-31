@@ -8,8 +8,9 @@ This inventory reflects the repository inspected for the expansion roadmap. “I
 
 - **Implemented:** Vite + React 19 + TypeScript client-side application; React Router routes live in `src/App.tsx`; Tailwind and shadcn/Radix UI dependencies are available.
 - **Implemented:** Website code is in `src/`, static assets in `public/`, deployment configuration includes Vercel routing.
-- **Not present:** Tauri, Rust, SQLite, desktop packaging, API/server layer, provider framework, automated test suite, CI, or platform adapters.
-- **Deployment note:** This is currently a single Vite website project. There is no separate desktop project or independent desktop build yet.
+- **Implemented:** A Tauri 2 / Rust desktop preview shell with a separate Vite frontend entry and a native-runner installer workflow.
+- **Not present:** SQLite, API/server layer, provider framework, automated test suite, or native platform adapters.
+- **Deployment note:** The website remains the root Vite app. Desktop UI uses `desktop-ui/`, `vite.desktop.config.ts`, and `src-tauri/`; it has independent web and native build scripts. Installer builds have not yet been run or verified on every platform.
 
 ## Website
 

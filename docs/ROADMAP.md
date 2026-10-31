@@ -1,12 +1,12 @@
 # JARVIS implementation roadmap
 
-This roadmap is dependency-aware and based on the current repository inventory. The project is currently a Vite/React/TypeScript website only. Work must be delivered in small, testable phases; a capability is not complete until implemented, tested, documented, and accurately described on the site.
+This roadmap is dependency-aware and based on the current repository inventory. The project contains a Vite/React/TypeScript website and an early Tauri desktop preview shell. Work must be delivered in small, testable phases; a capability is not complete until implemented, tested, documented, and accurately described on the site.
 
 ## Phase 0 — Stability and project boundaries
 
 1. Add project ownership and contribution documentation, MIT `LICENSE`, environment example, and verified dependency/licence inventory.
 2. Add automated website tests, lint/type/build checks, accessibility checks, and CI.
-3. Define the monorepo boundary without changing the independently deployable website: keep current website at repository root and place desktop under `desktop/` (Tauri 2 + React/TypeScript UI + Rust core); keep shared contracts isolated and avoid coupling website deployment to desktop dependencies.
+3. Keep the root website independently deployable. The current desktop preview lives in `desktop-ui/` and `src-tauri/`, with its own Vite config/output and Tauri build scripts; avoid coupling website routes or deploy output to the desktop shell.
 4. Document threat model, local data classification, permission model, supported-platform test matrix, and secrets policy.
 
 **Exit criteria:** Existing site passes checks; repository structure and licence are explicit; desktop package can be added without destabilizing web builds.
@@ -22,8 +22,8 @@ This roadmap is dependency-aware and based on the current repository inventory. 
 
 ## Phase 2 — Desktop foundation
 
-1. Add independently buildable Tauri 2 application and capability detection. Keep OS-specific operations behind Windows/macOS/Linux adapters.
-2. Implement app shell/navigation, settings, accessibility/theme preferences, structured activity log, emergency stop, and permission UX. Unsupported capabilities must be visibly disabled with a reason.
+1. **Started:** An independently buildable Tauri 2 shell exists with a desktop-specific React entry and Rust core. Keep OS-specific operations behind Windows/macOS/Linux adapters; no privileged native actions are exposed yet.
+2. **Partially implemented:** A preview dashboard, local Ollama status check, and link to the existing text chat are present. Settings, accessibility/theme preferences, structured activity log, emergency stop, and permission UX remain future work. Unsupported capabilities must be visibly disabled with a reason.
 3. Add SQLite schema/migrations, local conversation storage, backup/export/delete, and data-retention controls. Define encryption boundaries before storing secrets or sensitive data.
 4. Add desktop integration and platform smoke tests; do not claim an OS supported until the relevant build and core flows have been tested there.
 
@@ -75,7 +75,7 @@ This roadmap is dependency-aware and based on the current repository inventory. 
 
 ## Immediate next work
 
-Complete Phase 0 documentation and checks first. Then finish the missing website information pages and automated tests before creating the desktop subproject. Do not attempt to implement all requested product areas in one change.
+Complete checks for the website and desktop build paths, then run the native installer workflow on each target and smoke-test the preview. Keep the download center restricted to published release assets; do not attempt to implement all requested product areas in one change.
 
 ## Definition of done for every capability
 
