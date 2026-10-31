@@ -52,6 +52,17 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
       - uses: dtolnay/rust-toolchain@stable
+      - name: Check release tag matches the desktop version
+        if: startsWith(github.ref, 'refs/tags/desktop-v')
+        shell: bash
+        run: |
+          APP_VERSION=$(node -p "JSON.parse(require('fs').readFileSync('src-tauri/tauri.conf.json', 'utf8')).version")
+          WEB_VERSION=$(node -p "JSON.parse(require('fs').readFileSync('package.json', 'utf8')).version")
+          TAG_VERSION="${GITHUB_REF_NAME#desktop-v}"
+          if [ "$APP_VERSION" != "$TAG_VERSION" ] || [ "$WEB_VERSION" != "$TAG_VERSION" ]; then
+            echo "Tag $GITHUB_REF_NAME must match both Tauri version $APP_VERSION and website version $WEB_VERSION"
+            exit 1
+          fi
       - name: Install Linux build dependencies
         if: runner.os == 'Linux'
         run: |
