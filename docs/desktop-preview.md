@@ -1,12 +1,26 @@
 # JARVIS desktop preview
 
-JARVIS now has an independently buildable Tauri 2 shell with its own Vite entry point (`desktop-ui/`) and native Rust project (`src-tauri/`). The website remains the root Vite app and continues to build separately. The desktop entry opens a status dashboard and reuses the existing local Ollama chat.
+JARVIS has an independently buildable Tauri 2 shell with its own Vite entry point (`desktop-ui/`) and native Rust project (`src-tauri/`). The website remains the root Vite app and continues to build separately. Desktop chat defaults to Gemini with optional Ollama; the dashboard checks the selected provider.
 
 ## Current scope
 
-The preview can check an Ollama server on the same computer and open the existing text-chat interface. It stores chat history in the desktop webview's local storage, which is not encrypted. Voice, native file access, computer control, automation, cloud providers, a native credential store, and SQLite persistence are not included. Treat preview builds as early software and do not use them with sensitive data.
+The desktop chat now defaults to the Gemini API and retains Ollama as an optional local provider. Gemini API keys are stored in the operating system credential store through the native Tauri layer; they are not returned to the frontend or saved in local storage. Selecting Gemini sends conversation messages to Google using the user's own API key. Cloud use may have separate usage limits or billing. This native provider path has passed frontend build and type checks but has not yet been compiled or runtime-tested on Windows. Ollama and its models are optional and must be installed separately; the installer does not download either one. Chat history and personalization preferences remain in webview local storage, which is not encrypted. Voice input/output are best-effort WebView features and depend on operating-system speech services and microphone permission. Native file access, computer control, automation, and SQLite persistence are not included. Treat preview builds as early software and do not use them with sensitive data.
 
-The webview calls Ollama directly. Ollama must allow the exact desktop webview origin for the target operating system (commonly `http://tauri.localhost` on Windows and `tauri://localhost` on macOS/Linux). Add only the exact origin you trust to Ollama's `OLLAMA_ORIGINS`; do not use a wildcard or expose Ollama publicly. Check Ollama's own documentation for setting environment variables on your operating system.
+The optional Ollama provider calls the local Ollama server from the webview. Ollama must allow the exact desktop webview origin for the target operating system (commonly `http://tauri.localhost` on Windows and `tauri://localhost` on macOS/Linux). Add only the exact origin you trust to Ollama's `OLLAMA_ORIGINS`; do not use a wildcard or expose Ollama publicly. On Windows, restart Ollama after changing this setting. A successful Ollama status check means the server is reachable; users must still select an installed model in chat. Check Ollama's own documentation for setting environment variables on your operating system.
+
+## Gemini setup
+
+Choose **Gemini** in chat and enter a Gemini API key from Google AI Studio in **Provider & preferences**. JARVIS stores the key in the OS credential store (Windows Credential Manager, macOS Keychain, or Linux Secret Service through the `keyring` crate) and uses a native HTTPS request to Google's Gemini API. Model names are retrieved from the API for that key. The key is never stored in browser local storage or embedded in the frontend bundle. Gemini API usage is governed by the user's Google AI Studio project, quota, and billing settings; a consumer Gemini subscription does not guarantee API access or free API use. These native commands are not considered validated until a Windows Rust/Tauri build and key-storage/API smoke test pass.
+
+## Personalization and voice
+
+The chat preferences currently let users set their name, assistant name, dark/light appearance, and voice input/output toggles. These are stored in local storage and are not synced. Speech recognition support varies by WebView; if unavailable, text chat remains usable. Voice input is push-to-talk and does not listen in the background. Speech output can be interrupted by browser/WebView controls; voice speed and voice selection are not yet configurable.
+
+## Phone companion and REA
+
+No phone companion, call answering, SMS control, or REA integration is included in this preview. A future companion must pair through an authenticated, encrypted link, show the connected device, and request only the permissions it uses. Sending or replying to a message should show the recipient and exact message for confirmation; automatic replies should be off by default and restricted to explicit user-created rules. Android phone/SMS handling requires a separate native app and, for many call/SMS features, user selection of JARVIS as the default handler ([Android default dialer](https://developer.android.com/develop/connectivity/telecom/dialer-app), [restricted call/SMS permissions](https://developer.android.com/guide/topics/permissions/default-handlers)). iOS cannot grant general access to ordinary Phone and Messages activity; CallKit is for integrating JARVIS's own VoIP service with system calling UI ([Apple CallKit guide](https://developer.apple.com/documentation/callkit/making-and-receiving-voip-calls)).
+
+REA remains an optional, separately installed analysis tool; the desktop app does not bundle it or accept arbitrary targets to execute. A safe REA workflow should prefer passive/static inspection, require the user to select the exact website or application, and clearly label any active runtime instrumentation before it begins.
 
 ## Build separation
 

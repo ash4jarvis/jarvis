@@ -23,7 +23,7 @@ This roadmap is dependency-aware and based on the current repository inventory. 
 ## Phase 2 — Desktop foundation
 
 1. **Started:** An independently buildable Tauri 2 shell exists with a desktop-specific React entry and Rust core. Keep OS-specific operations behind Windows/macOS/Linux adapters; no privileged native actions are exposed yet.
-2. **Partially implemented:** A preview dashboard, local Ollama status check, and link to the existing text chat are present. Settings, accessibility/theme preferences, structured activity log, emergency stop, and permission UX remain future work. Unsupported capabilities must be visibly disabled with a reason.
+2. **Partially implemented:** A preview dashboard, Gemini/Ollama status, provider selection, local personalization preferences, appearance toggle, and best-effort push-to-talk/speech output are present. Gemini's native credential/API integration awaits a Windows build and runtime test. Accessibility validation, structured activity log, emergency stop, and full permission UX remain future work. Unsupported capabilities must be visibly disabled with a reason.
 3. Add SQLite schema/migrations, local conversation storage, backup/export/delete, and data-retention controls. Define encryption boundaries before storing secrets or sensitive data.
 4. Add desktop integration and platform smoke tests; do not claim an OS supported until the relevant build and core flows have been tested there.
 
@@ -32,7 +32,7 @@ This roadmap is dependency-aware and based on the current repository inventory. 
 ## Phase 3 — AI provider framework and multilingual text chat
 
 1. Define provider/model capability contracts (context limits, streaming, tools, image/audio support, language claims, privacy and local/cloud location).
-2. Implement one local provider first; add optional cloud providers only through explicit configuration and secure credential storage. No keys in web bundles or source.
+2. **Implementation added; native validation pending:** Desktop chat now defaults to optional Gemini cloud access using the user's own API key, fetched model list, and OS credential storage; Ollama remains an optional local provider. Never place keys in web bundles, JavaScript local storage, logs, or source. A consumer Gemini subscription does not itself guarantee Gemini API access or free API usage; link API key/billing requirements in setup guidance. Finish a Windows Rust/Tauri build, secure-store round-trip, API smoke test, error handling review, and privacy review before release.
 3. Implement streaming chat, cancel/interrupt, context handling, mode/personality/system-instruction configuration, and searchable/exportable conversations.
 4. Add language detection and translation as explicit model-dependent capabilities. Start with a tested language matrix; never imply hundreds of verified languages. Add RTL layout tests.
 5. Add provider failure, cancellation, long-context, and multilingual tests before exposing corresponding claims.
@@ -41,7 +41,7 @@ This roadmap is dependency-aware and based on the current repository inventory. 
 
 ## Phase 4 — Voice
 
-1. Build microphone permission/device selection, push-to-talk, mute and clear activity indicators.
+1. **Prototype present:** Push-to-talk and speech output use browser/WebView speech APIs. Build native microphone permission/device selection, mute and clear activity indicators, and test each supported operating system.
 2. Add speech recognition and text-to-speech as independently capability-declared adapters, including offline options where tested.
 3. Add streaming/interruptible speech and configurable voice/speed where providers support it; test mixed language and supported accents.
 4. Wake word and hands-free/full-duplex are opt-in, disabled by default, and only added after resource/privacy review.
@@ -52,6 +52,8 @@ This roadmap is dependency-aware and based on the current repository inventory. 
 2. Add per-action permission prompts and audit trail. Require confirmation for destructive, privileged, external, or irreversible actions.
 3. Never execute arbitrary model-generated shell commands. Browser, clipboard, screen, file, email, calendar, messaging, and web tools each require their own explicit consent and scoped permissions.
 4. Add cross-platform tests and adversarial prompt-injection/security tests before enabling actions.
+5. **Phone companion (planned):** Build native Android and iOS companion apps with explicit QR pairing, authenticated encrypted transport, device revocation, and a visible connection state. Start with user-approved notification handoff and dictated messages that show the recipient and exact text for confirmation. Call answering and SMS require platform-specific implementation, permissions, and store-policy review. Android call/SMS features may require the user to select JARVIS as the default Phone or SMS handler. iOS integration is limited to supported calling/VoIP APIs and cannot provide general control of ordinary Phone or Messages activity. Automatic replies must be disabled by default, bounded to user-configured contacts/rules, and logged locally.
+6. **REA workflow (planned):** Integrate with an independently installed REA tool only through a narrow, documented interface. The user must select the exact site, app, or file and review the scope. Default to passive/static analysis; require a separate action before runtime instrumentation, network interaction, or any target mutation. Never claim to reverse engineer every target or reveal unavailable server-side source.
 
 ## Phase 6 — Productivity, documents, memory, and knowledge
 
