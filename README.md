@@ -8,7 +8,7 @@ JARVIS is intended to be a free, open-source, local-first personal AI assistant.
 
 - Responsive marketing and documentation website with Home, Features, Download, Docs, FAQ, Privacy, and Open Source pages.
 - Experimental browser chat at `/chat` connects to Ollama on the same device. Developer Mode at `/developer` adds local-model coding suggestions and a searchable personal reference library. See [local chat setup](docs/local-model-chat.md) and [Developer Mode limits](docs/developer-mode.md).
-- Desktop downloads are not published. All packages remain Coming soon until official release artifacts exist.
+- Download Center checks the official GitHub Releases feed at runtime and shows links only for matching published installer assets; unmatched packages remain Coming soon.
 - No packaged desktop app, voice, system control, cloud provider, SQLite persistence, or native platform adapter is currently included.
 
 See [feature inventory](docs/FEATURE-INVENTORY.md) and [implementation roadmap](docs/ROADMAP.md) for verified scope and planned phases.

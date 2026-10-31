@@ -18,7 +18,7 @@ This inventory reflects the repository inspected for the expansion roadmap. “I
 - **Implemented:** `/developer` provides streamed coding assistance through local Ollama, selectable task/personality/language, source-text context, and a searchable reference library with personal cheat sheets stored in browser local storage.
 - **Not implemented:** Developer Mode does not edit project files, run terminal commands, tests, builds, scans, or Git actions. It does not provide sandboxed execution, code diffs, backups, or undo. See `docs/developer-mode.md`.
 - **Implemented:** GitHub repository/release URLs can be configured with `VITE_GITHUB_REPO` and `VITE_GITHUB_RELEASES_URL`.
-- **Honest limitation:** Download cards are explicitly “Coming soon”; the site does not fetch GitHub release metadata or asset checksums, and no packages are declared available.
+- **Implemented:** Download Center fetches the public latest-release metadata from GitHub at runtime and links only HTTPS GitHub assets whose names match a supported package/architecture. Missing assets stay Coming soon; if GitHub cannot be reached, no direct downloads are shown. Publisher-provided SHA-256 appears only when present.
 - **Not present:** Dedicated language support, release notes, tutorials, roadmap, security reporting, community showcase, developer/API reference, and marketplace-information pages. Documentation content is currently short static guidance rather than a full docs system.
 - **Not present:** Automated tests, accessibility tests, multilingual coverage, or performance tests.
 
