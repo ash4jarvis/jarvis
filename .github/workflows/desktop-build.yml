@@ -38,7 +38,7 @@ jobs:
           fi
       - run: pnpm install --frozen-lockfile
       - name: Build Windows EXE and MSI installers
-        run: pnpm desktop:build -- --bundles nsis,msi
+        run: pnpm exec tauri build --config src-tauri/tauri.conf.json --bundles nsis,msi
       - uses: actions/upload-artifact@v4
         with:
           name: jarvis-windows
