@@ -15,7 +15,7 @@
   <p>The JARVIS website includes an experimental chat interface that connects to Ollama running on the same computer. It is a browser-based prototype. The early JARVIS Desktop preview reuses this Ollama chat inside a Tauri webview; it is not yet the full native assistant.</p>
   <h2>What you need</h2>
   <ul><li>Ollama installed and running.</li><li>At least one model available in Ollama.</li><li>A browser or desktop webview permitted to connect to Ollama's local API.</li></ul>
-  <p>JARVIS checks <code>http://localhost:11434</code> by default. Use Local connection settings in chat if Ollama listens on a different loopback port.</p>
+  <p>JARVIS checks <code>http://127.0.0.1:11434</code> by default. Use Local connection settings in chat if Ollama listens on a different loopback port.</p>
   <h2>Browser access and safety</h2>
   <p>The website or desktop webview and local Ollama server have different origins. Requests can be blocked unless Ollama allows the exact trusted origin. The Tauri webview origin is commonly <code>http://tauri.localhost</code> on Windows and <code>tauri://localhost</code> on macOS/Linux. See Ollama's official documentation for OS-specific <code>OLLAMA_ORIGINS</code> setup.</p>
   <div class="callout"><strong>Security:</strong> Allow only the exact trusted JARVIS origin. Do not use wildcard origins or expose Ollama to the public internet. A script running on an allowed origin could send prompts to your local model.</div>

@@ -4,7 +4,7 @@ import { Link, Navigate, Route, Routes } from "react-router-dom";
 import { ArrowRight, ArrowUpRight, Check, CircleAlert, Cpu, RefreshCw, ShieldCheck } from "lucide-react";
 import Chat from "../src/pages/Chat";
 
-const OLLAMA_URL = "http://localhost:11434";
+const OLLAMA_URL = "http://127.0.0.1:11434";
 
 type Connection = "checking" | "connected" | "offline";
 
@@ -22,7 +22,7 @@ function DesktopHome() {
       if (!response.ok) throw new Error();
       const data = await response.json() as { models?: { name: string }[] };
       setModelCount(data.models?.length || 0); setConnection("connected");
-      setMessage(data.models?.length ? `${data.models.length} local model${data.models.length === 1 ? "" : "s"} available.` : "Ollama is running, but there are no installed models yet.");
+      setMessage(data.models?.length ? `${data.models.length} local model${data.models.length === 1 ? "" : "s"} available.` : "Ollama is running, but there are no installed models. Add qwen3:4b in Ollama, then check again.");
     } catch { setConnection("offline"); setModelCount(0); setMessage("Ollama could not be reached. Start Ollama and check its WebView-origin access."); }
   }, []);
   useEffect(() => { void checkLocalModel(); }, [checkLocalModel]);

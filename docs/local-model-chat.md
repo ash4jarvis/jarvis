@@ -8,7 +8,7 @@ The `/chat` page in the current website can send text messages to an Ollama serv
 - At least one model downloaded in Ollama.
 - A browser or desktop webview allowed to connect to the local Ollama API.
 
-The app checks `http://localhost:11434` by default. Use Local connection settings on the chat screen only if Ollama listens on a different loopback port. The chat only accepts loopback addresses (`localhost`, `127.0.0.1`, or `::1`) and does not accept remote endpoints.
+The app checks `http://127.0.0.1:11434` by default. Install a model such as `qwen3:4b` in Ollama before starting a conversation. Use Local connection settings on the chat screen only if Ollama listens on a different loopback port. The chat only accepts loopback addresses (`localhost`, `127.0.0.1`, or `::1`) and does not accept remote endpoints.
 
 ## Browser and desktop-webview origins and security
 
@@ -23,7 +23,7 @@ Conversation history and the configured loopback URL are stored in browser or de
 ## Current limitations
 
 - Conversations are stored in browser local storage, not SQLite, and are local to this browser profile.
-- The desktop shell is an unsigned preview package; it does not yet have native tray, filesystem, system-health, or platform-adapter capabilities. See [the desktop preview guide](desktop-preview.md).
+- The Windows installer workflow is configured but has not yet produced a package. The desktop shell does not have native tray, filesystem, system-health, or platform-adapter capabilities. See [the desktop preview guide](desktop-preview.md).
 - The model list and chat endpoint depend on Ollama API compatibility. The UI does not infer or certify a model's supported languages, context length, multimodal features, or reasoning behavior.
 - A user can stop a streaming response, but no tools or computer actions are available.
 - If the connection fails, check that Ollama is running and allows only the exact trusted website or desktop-webview origin.
